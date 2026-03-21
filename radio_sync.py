@@ -6,6 +6,7 @@ FTP_HOST = os.getenv("FTP_HOST")
 FTP_USER = os.getenv("FTP_USER")
 FTP_PASS = os.getenv("FTP_PASS")
 
+# Hoje é Sábado, roda a grade de FDS
 hoje_fds = datetime.now().weekday() >= 5
 
 def conectar():
@@ -14,7 +15,6 @@ def conectar():
     return ftp
 
 def mapear_pasta_pelo_link(url):
-    # Dicionário baseado exatamente no seu print do Centova
     mapa = {
         "Bau_Sertanejo": "Bau_Sertanejo",
         "Manha_Total": "Manha_Total",
@@ -42,32 +42,36 @@ def mapear_pasta_pelo_link(url):
 def processar(arquivo_txt, pasta_raiz_centova):
     if not os.path.exists(arquivo_txt): return
     with open(arquivo_txt, 'r') as f:
-        linhas = [l.strip() for l in f if l.strip() and "http" in l]
+        links = [l.strip() for l in f if l.strip() and "http" in l]
 
-    if not linhas: return
+    if not links: return
     ftp = conectar()
     
-    for linha in linhas:
-        try:
-            # Se tiver virgula usa o que vc definiu, se não, faz o automático inteligente
-            if "," in linha:
-                partes = linha.split(',')
-                url, pasta_programa, nome_final = partes[0], partes[1], partes[2]
-            else:
-                url = linha
-                pasta_programa = mapear_pasta_pelo_link(url)
-                # Pega o nome do arquivo final da URL e troca mp3 por aac
-                nome_bruto = url.split('/')[-1].split('&')[0]
-                nome_final = nome_bruto.replace('.mp3', '.aac')
-                if not nome_final.endswith('.aac'): nome_final += ".aac"
+    # Dicionário para contar os blocos de cada programa na hora de salvar
+    contador_blocos = {}
 
-            print(f"🚀 Processando: {pasta_raiz_centova}/{pasta_programa}/{nome_final}")
+    for url in links:
+        try:
+            pasta_programa = mapear_pasta_pelo_link(url)
+            
+            # Gerencia a contagem de blocos (01, 02, 03...)
+            if pasta_programa not in contador_blocos:
+                contador_blocos[pasta_programa] = 1
+            else:
+                contador_blocos[pasta_programa] += 1
+            
+            num_bloco = contador_blocos[pasta_programa]
+            # Nomenclatura Padronizada: Nome_Programa_blocoXX.aac
+            nome_final = f"{pasta_programa}_bloco{num_bloco:02d}.aac"
+
+            print(f"🚀 Enviando: {pasta_raiz_centova}/{pasta_programa}/{nome_final}")
             
             r = requests.get(url, timeout=60, stream=True)
             if r.status_code == 200:
                 with open("t.mp3", 'wb') as fm:
                     for chunk in r.iter_content(8192): fm.write(chunk)
                 
+                # Conversão para o padrão 64k do Centova
                 subprocess.run(['ffmpeg', '-y', '-i', "t.mp3", '-c:a', 'aac', '-b:a', '64k', "t.aac"], 
                                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
@@ -77,22 +81,25 @@ def processar(arquivo_txt, pasta_raiz_centova):
                     try:
                         ftp.cwd(caminho_alvo)
                         with open("t.aac", 'rb') as fa:
+                            # STOR sobrescreve o áudio mantendo o nome idêntico
                             ftp.storbinary(f'STOR {nome_final}', fa)
                         print(f"  ✅ {nome_final} Atualizado!")
                     except:
-                        print(f"  ❌ Pasta não existe no Centova: {caminho_alvo}")
+                        print(f"  ❌ Pasta não encontrada no Centova: {caminho_alvo}")
             
             if os.path.exists("t.mp3"): os.remove("t.mp3")
             if os.path.exists("t.aac"): os.remove("t.aac")
+            
         except Exception as e:
-            print(f"  ⚠️ Erro: {e}")
+            print(f"  ⚠️ Erro no link {url}: {e}")
+    
     ftp.quit()
 
 if __name__ == "__main__":
     if hoje_fds:
-        print("📅 GRADE FDS ATIVA")
+        print("📅 GRADE FIM DE SEMANA")
         processar("links_fds_repetidos.txt", "SEGaSEX")
         processar("links_fds_exclusivo.txt", "FimSemana")
     else:
-        print("📅 GRADE SEMANA ATIVA")
+        print("📅 GRADE SEMANA")
         processar("links_segasex.txt", "SEGaSEX")
