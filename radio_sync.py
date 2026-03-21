@@ -22,12 +22,12 @@ PROGRAMAS_SEG_A_SEX = {
 
 PROGRAMAS_FIM_SEMANA = {
     "Super_FA": [f"https://s03.svrdedicado.org:1443/play.php?porta=7520&musica=Super_FA_FimSemana/Super_fa_bloco0{i}.mp3&tipo=programa&hash=20260228020036" for i in range(1, 4)],
-    "As_30_Mais": [f"https://s03.svrdedicado.org:1443/play.php?porta=7520&musica=As_30_Mais_FimSemana/As_30_mais_bloco0{i}.mp3&tipo=programa&hash=20260228020036" for i in range(1, 7)],
+    "As_30_Mais": [f"https://s03.svrdedicado.org:1443/play.php?porta=7520&musica=As_30_Mais_FimSemana/As_30_Mais_Bloco_0{i}.mp3&tipo=programa&hash=20260321042210" for i in range(1, 7)],
     "Domingao_Total": [f"https://s03.svrdedicado.org:1443/play.php?porta=7520&musica=Domingao_Total_FimSemana/Domingao_total_bloco0{i}.mp3&tipo=programa&hash=20260228020036" for i in range(1, 7)],
-    "Caldeirao_Musical": [f"https://s03.svrdedicado.org:1443/play.php?porta=7520&musica=Caldeirao_Musical_FimSemana/Caldeirao_musical_bloco0{i}.mp3&tipo=programa&hash=20260228020036" for i in range(1, 5)],
-    "Unidos_Pela_Fe": ["https://s03.svrdedicado.org:1443/play.php?porta=7520&musica=Unidos_Pela_Fe_FimSemana/Unidos_pela_fe_bloco01.mp3&tipo=programa&hash=20260228020036"],
+    "Caldeirao_Musical": [f"https://s03.svrdedicado.org:1443/play.php?porta=7520&musica=Caldeirao_musical_FimSemana/Caldeirao_musical_bloco0{i}.mp3&tipo=programa&hash=20260321043748" for i in range(1, 5)],
+    "Unidos_Pela_Fe": ["https://stm30.srvstm.com:1443/play.php?porta=19480&musica=GOSPEL_Unidos_Pela_Fe_FimSemana%2FGOSPEL_Unidos_Pela_Fe_bloco{i}.mp3&tipo=programas"],
     "60_Minutos": ["https://s03.svrdedicado.org:1443/play.php?porta=7520&musica=60_Minutos_FimSemana/60_minutos_bloco01.mp3&tipo=programa&hash=20260228020036"],
-    "Pista_Maxima": [f"https://Stm30.srvstm.com:1443/play.php?porta=19480&musica=NOVO_Pista_Maxima_FimSemana/NOVO_Pista_Maxima_bloco{i}&tipo=programas" for i in range(1, 5)]
+    "Pista_Maxima": [f"https://Stm30.srvstm.com:1443/play.php?porta=19480&musica=NOVO_Pista_Maxima_FimSemana/NOVO_Pista_Maxima_bloco{i}.mp3&tipo=programas" for i in range(1, 5)]
 }
 
 def conectar_ftp():
