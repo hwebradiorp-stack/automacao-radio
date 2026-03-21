@@ -1,6 +1,7 @@
-https://Stm30.srvstm.com:1443/play.php?porta=19480&musica=NOVO_Pista_Maxima_FimSemana/NOVO_Pista_Maxima_bloco2&tipo=programas
-https://Stm30.srvstm.com:1443/play.php?porta=19480&musica=NOVO_Pista_Maxima_FimSemana/NOVO_Pista_Maxima_bloco3&tipo=programas
-https://Stm30.srvstm.com:1443/play.php?porta=19480&musica=NOVO_Pista_Maxima_FimSemana/NOVO_Pista_Maxima_bloco4&tipo=programas
+https://stm30.srvstm.com:1443/play.php?porta=19480&musica=NOVO_Pista_Maxima_FimSemana%2FNOVO_Pista_Maxima_bloco1.mp3&tipo=programas
+https://stm30.srvstm.com:1443/play.php?porta=19480&musica=NOVO_Pista_Maxima_FimSemana%2FNOVO_Pista_Maxima_bloco2.mp3&tipo=programas
+https://stm30.srvstm.com:1443/play.php?porta=19480&musica=NOVO_Pista_Maxima_FimSemana%2FNOVO_Pista_Maxima_bloco3.mp3&tipo=programas
+https://stm30.srvstm.com:1443/play.php?porta=19480&musica=NOVO_Pista_Maxima_FimSemana%2FNOVO_Pista_Maxima_bloco4.mp3&tipo=programas
 https://s03.svrdedicado.org:1443/play.php?porta=7520&musica=Super_FA_FimSemana/Super_fa_bloco01.mp3&tipo=programa&hash=20260228020036
 https://s03.svrdedicado.org:1443/play.php?porta=7520&musica=Super_FA_FimSemana/Super_fa_bloco02.mp3&tipo=programa&hash=20260228020036
 https://s03.svrdedicado.org:1443/play.php?porta=7520&musica=Super_FA_FimSemana/Super_fa_bloco03.mp3&tipo=programa&hash=20260228020036
