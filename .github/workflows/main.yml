@@ -1,0 +1,33 @@
+name: Atualizar Radio Henrique
+
+on:
+  schedule:
+    # Roda todo dia às 04:00 da manhã (Horário de Brasília)
+    - cron: '0 7 * * *'
+  workflow_dispatch: # Adiciona um botão para você rodar na hora que quiser
+
+jobs:
+  run-sync:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Baixar código do GitHub
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Instalar FFmpeg e Requests
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+          pip install requests
+
+      - name: Rodar Script de Sincronização
+        env:
+          FTP_HOST: ${{ secrets.FTP_HOST }}
+          FTP_USER: ${{ secrets.FTP_USER }}
+          FTP_PASS: ${{ secrets.FTP_PASS }}
+        run: python radio_sync.py
