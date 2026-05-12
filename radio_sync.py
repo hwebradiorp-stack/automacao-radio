@@ -13,10 +13,21 @@ def conectar():
     ftp.login(FTP_USER, FTP_PASS)
     return ftp
 
+def garantir_diretorio(ftp, caminho_completo):
+    """Navega para a pasta, criando-a se não existir (suporta caminhos aninhados)"""
+    pastas = caminho_completo.split('/')
+    ftp.cwd('/')
+    for pasta in pastas:
+        if not pasta: continue
+        try:
+            ftp.cwd(pasta)
+        except:
+            print(f"📁 Criando pasta: {pasta}")
+            ftp.mkd(pasta)
+            ftp.cwd(pasta)
+
 def mapear_pasta_pelo_link(url):
     url_limpa = url.lower()
-    # Mapeamento reforçado baseado no seu print do Centova
-    # Se o link tiver QUALQUER uma dessas palavras, ele joga na pasta certa
     if "falando" in url_limpa: return "Falando_de_Amor"
     if "15" in url_limpa and "mais" in url_limpa: return "As_15_Mais"
     if "bau" in url_limpa: return "Bau_Sertanejo"
@@ -34,11 +45,13 @@ def mapear_pasta_pelo_link(url):
     if "unidos" in url_limpa: return "Unidos_Pela_Fe"
     if "60" in url_limpa: return "60_Minutos"
     if "vibe" in url_limpa: return "Vibe_Mix"
-    
     return "Outros"
 
 def processar(arquivo_txt, pasta_raiz_centova):
-    if not os.path.exists(arquivo_txt): return
+    if not os.path.exists(arquivo_txt): 
+        print(f"❌ Arquivo {arquivo_txt} não encontrado.")
+        return
+        
     with open(arquivo_txt, 'r') as f:
         links = [l.strip() for l in f if l.strip() and "http" in l]
 
@@ -51,20 +64,16 @@ def processar(arquivo_txt, pasta_raiz_centova):
         try:
             pasta_programa = mapear_pasta_pelo_link(url)
             
-            # Se caiu em "Outros", o script avisa qual link falhou para a gente corrigir
             if pasta_programa == "Outros":
                 print(f"⚠️ Link não reconhecido (Pasta Outros): {url}")
                 continue
 
-            if pasta_programa not in contador_blocos:
-                contador_blocos[pasta_programa] = 1
-            else:
-                contador_blocos[pasta_programa] += 1
-            
+            contador_blocos[pasta_programa] = contador_blocos.get(pasta_programa, 0) + 1
             num_bloco = contador_blocos[pasta_programa]
             nome_final = f"{pasta_programa}_bloco{num_bloco:02d}.aac"
 
-            print(f"🚀 Enviando: {pasta_raiz_centova}/{pasta_programa}/{nome_final}")
+            caminho_alvo = f"media/{pasta_raiz_centova}/{pasta_programa}"
+            print(f"🚀 Processando: {caminho_alvo}/{nome_final}")
             
             r = requests.get(url, timeout=60, stream=True)
             if r.status_code == 200:
@@ -76,21 +85,19 @@ def processar(arquivo_txt, pasta_raiz_centova):
                                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
                 if os.path.exists("t.aac"):
-                    ftp.cwd('/')
-                    caminho_alvo = f"media/{pasta_raiz_centova}/{pasta_programa}"
-                    try:
-                        ftp.cwd(caminho_alvo)
-                        with open("t.aac", 'rb') as fa:
-                            ftp.storbinary(f'STOR {nome_final}', fa)
-                        print(f"  ✅ {nome_final} Atualizado!")
-                    except:
-                        print(f"  ❌ Pasta não existe no Centova: {caminho_alvo}")
+                    # Aqui garantimos que a pasta existe antes de enviar
+                    garantir_diretorio(ftp, caminho_alvo)
+                    
+                    with open("t.aac", 'rb') as fa:
+                        ftp.storbinary(f'STOR {nome_final}', fa)
+                    print(f"   ✅ {nome_final} Atualizado com sucesso!")
             
-            if os.path.exists("t.mp3"): os.remove(t_mp3 if 't_mp3' in locals() else "t.mp3")
-            if os.path.exists("t.aac"): os.remove(t_aac if 't_aac' in locals() else "t.aac")
+            # Limpeza de arquivos temporários
+            for temp_file in ["t.mp3", "t.aac"]:
+                if os.path.exists(temp_file): os.remove(temp_file)
             
         except Exception as e:
-            print(f"  ⚠️ Erro no link {url}: {e}")
+            print(f"   ⚠️ Erro no link {url}: {e}")
     
     ftp.quit()
 
