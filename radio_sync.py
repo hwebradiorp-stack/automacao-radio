@@ -28,6 +28,8 @@ def garantir_diretorio(ftp, caminho_completo):
 
 def mapear_pasta_pelo_link(url):
     url_limpa = url.lower()
+    
+    # Mapeamento corrigido e novos programas adicionados
     if "falando" in url_limpa: return "Falando_de_Amor"
     if "15" in url_limpa and "mais" in url_limpa: return "As_15_Mais"
     if "bau" in url_limpa: return "Bau_Sertanejo"
@@ -44,7 +46,13 @@ def mapear_pasta_pelo_link(url):
     if "caldeirao" in url_limpa: return "Caldeirao_Musical"
     if "unidos" in url_limpa: return "Unidos_Pela_Fe"
     if "60" in url_limpa: return "60_Minutos"
-    if "vibe" in url_limpa: return "Vibe_Mix"
+    
+    # Correção para Vibe Mix (o link veio como Vib_Mix)
+    if "vib" in url_limpa: return "Vibe_Mix"
+    
+    # Novo: Café com Notícias
+    if "cafe" in url_limpa or "noticias" in url_limpa: return "Cafe_com_Noticias"
+    
     return "Outros"
 
 def processar(arquivo_txt, pasta_raiz_centova):
