@@ -1,0 +1,26 @@
+name: Super Playlist Automática (3 em 3 dias)
+
+on:
+  schedule:
+    # Roda às 05:00 UTC (02:00 BRT) a cada 3 dias
+    - cron: '0 5 */3 * *' 
+  workflow_dispatch: # Permite que você rode manualmente quando quiser
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Instalar Dependências
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+          pip install yt-dlp requests beautifulsoup4
+
+      - name: Rodar Gerador
+        env:
+          FTP_HOST: ${{ secrets.FTP_HOST }}
+          FTP_USER: ${{ secrets.FTP_USER }}
+          FTP_PASS: ${{ secrets.FTP_PASS }}
+        run: python gerador_inteligente.py
