@@ -1,84 +1,84 @@
 import os
 import subprocess
-import requests
-import google.generativeai as genai
 from ftplib import FTP
 
 # Configurações via Secrets do GitHub
 FTP_HOST = os.getenv("FTP_HOST")
 FTP_USER = os.getenv("FTP_USER")
 FTP_PASS = os.getenv("FTP_PASS")
-GEMINI_KEY = os.getenv("GEMINI_API_KEY")
 
-def obter_playlist_gemini():
-    print("🤖 Gemini gerando repertório das rádios Clube FM e Mega FM...")
-    genai.configure(api_key=GEMINI_KEY)
-    model = genai.GenerativeModel('gemini-1.5-flash')
+# Seu link específico do Spotify
+SPOTIFY_PLAYLIST_URL = "https://open.spotify.com/playlist/0WwOAlgSwurvLcTKyphVVS" 
+
+def processar_spotify():
+    print(f"📡 Iniciando processamento da playlist Spotify...")
     
-    prompt = (
-        "Gere uma lista de 100 músicas que são os maiores sucessos atuais nas rádios "
-        "Clube FM Ribeirão Preto, Clube FM São Carlos e Mega FM. "
-        "Foque em Sertanejo, Pisadinha e Hits do momento. "
-        "Retorne APENAS os nomes no formato 'Artista - Música', um por linha, sem números ou explicações."
-    )
+    # Cria pasta temporária para organização
+    if not os.path.exists("downloads"): 
+        os.mkdir("downloads")
 
-    try:
-        response = model.generate_content(prompt)
-        linhas = response.text.strip().split('\n')
-        # Filtra linhas vazias ou com lixo
-        musicas = [l.strip() for l in linhas if len(l) > 5 and "-" in l]
-        print(f"✅ Gemini sugeriu {len(musicas)} músicas.")
-        return musicas[:100]
-    except Exception as e:
-        print(f"❌ Erro no Gemini: {e}")
-        return []
+    # Baixa a playlist completa
+    # O spotdl busca o áudio no YouTube e baixa em MP3
+    print("📥 Baixando músicas da playlist (isso pode demorar)...")
+    subprocess.run([
+        'spotdl', 'download', SPOTIFY_PLAYLIST_URL,
+        '--output', 'downloads/{title} - {artist}.mp3',
+        '--max-results', '1'
+    ], check=True)
 
-def processar():
-    musicas = obter_playlist_gemini()
-    if not musicas:
-        print("⚠️ Lista vazia. Verifique a chave da API.")
-        return
+    # Lista os arquivos MP3 baixados
+    musicas_baixadas = [f for f in os.listdir("downloads") if f.endswith(".mp3")]
+    musicas_baixadas.sort() # Ordena alfabeticamente
+    
+    total = len(musicas_baixadas)
+    print(f"✅ {total} músicas baixadas. Iniciando conversão e envio FTP...")
 
     ftp = FTP(FTP_HOST)
     ftp.login(FTP_USER, FTP_PASS)
     
     pasta_remota = "media/musicas"
-    try: ftp.mkd(pasta_remota)
-    except: pass
+    
+    # Garante que a pasta existe no FTP
+    try:
+        ftp.mkd("media")
+    except:
+        pass
+    try:
+        ftp.mkd(pasta_remota)
+    except:
+        pass
 
-    for i, nome in enumerate(musicas):
+    for i, arquivo_mp3 in enumerate(musicas_baixadas):
         try:
             num = i + 1
+            arquivo_local = os.path.join("downloads", arquivo_mp3)
+            # Nome padrão: musica_001.aac, musica_002.aac...
             arquivo_final = f"musica_{num:03d}.aac"
-            print(f"🚀 [{num}/100] Baixando: {nome}")
+            
+            print(f"🚀 [{num}/{total}] Convertendo: {arquivo_mp3}")
 
-            # Download via yt-dlp
-            # --match-filter garante que não pegue vídeos longos (sets/lives)
+            # Conversão para AAC 64k
             subprocess.run([
-                'yt-dlp', '--extract-audio', '--audio-format', 'mp3',
-                '--match-filter', 'duration < 600 & !is_live', 
-                f'ytsearch1:{nome}', '-o', 'temp.mp3'
-            ], check=True)
+                'ffmpeg', '-y', '-i', arquivo_local, 
+                '-c:a', 'aac', '-b:a', '64k', 
+                '-ac', '1', 'temp.aac' # -ac 1 converte para mono (melhor qualidade em 64k)
+            ], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
-            # Conversão AAC 64k (Alta compressão para economizar espaço)
-            subprocess.run([
-                'ffmpeg', '-y', '-i', 'temp.mp3', '-c:a', 'aac', '-b:a', '64k', 'final.aac'
-            ], check=True)
-
-            # Envio FTP
+            # Envio FTP (Sobrescrevendo arquivos com mesmo nome)
             ftp.cwd("/")
             ftp.cwd(pasta_remota)
-            with open('final.aac', 'rb') as f:
+            with open('temp.aac', 'rb') as f:
                 ftp.storbinary(f"STOR {arquivo_final}", f)
             
-            # Limpeza local imediata
-            if os.path.exists("temp.mp3"): os.remove("temp.mp3")
-            if os.path.exists("final.aac"): os.remove("final.aac")
+            # Limpa o arquivo temporário de conversão
+            if os.path.exists("temp.aac"): 
+                os.remove("temp.aac")
 
         except Exception as e:
-            print(f"❌ Falha ao processar {nome}: {e}")
+            print(f"❌ Erro no arquivo {arquivo_mp3}: {e}")
 
     ftp.quit()
+    print("✨ Processo concluído com sucesso!")
 
 if __name__ == "__main__":
-    processar()
+    processar_spotify()
