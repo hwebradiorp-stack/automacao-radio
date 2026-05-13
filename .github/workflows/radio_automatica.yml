@@ -1,9 +1,7 @@
-name: Super Playlist Gemini (3 em 3 dias)
+name: Super Playlist Spotify Manual
 
 on:
-  schedule:
-    - cron: '0 5 */3 * *'
-  workflow_dispatch:
+  workflow_dispatch: # Botão para rodar manual na aba Actions
 
 jobs:
   build:
@@ -15,12 +13,11 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y ffmpeg
-          pip install yt-dlp google-generativeai
+          pip install spotdl
 
-      - name: Rodar Gerador Gemini
+      - name: Rodar Sincronização Spotify
         env:
           FTP_HOST: ${{ secrets.FTP_HOST }}
           FTP_USER: ${{ secrets.FTP_USER }}
           FTP_PASS: ${{ secrets.FTP_PASS }}
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: python gerador_inteligente.py
