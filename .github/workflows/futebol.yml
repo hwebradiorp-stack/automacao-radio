@@ -2,10 +2,18 @@ name: Live Futebol H WebRadio
 
 on:
   schedule:
-    # Quarta 21:15 BRT -> Quinta 00:15 UTC
-    - cron: '15 0 * * 5'
-    # Domingo 16:00 BRT -> Domingo 19:00 UTC
-    - cron: '0 19 * * 0'
+    # Quinta-feira (11/06) - 13:45 às 20:30 BRT -> 16:45 às 23:30 UTC
+    - cron: '45 16 11 6 *'
+    
+    # Sábado (13/06) - 18:00 às 21:30 BRT -> 21:00 às 00:30 UTC
+    - cron: '0 21 13 6 *'
+    
+    # Sexta-feira (19/06) - 20:30 às 23:30 BRT -> 23:30 às 02:30 UTC
+    - cron: '30 23 19 6 *'
+    
+    # Quarta-feira (24/06) - 18:00 às 21:30 BRT -> 21:00 às 00:30 UTC
+    - cron: '0 21 24 6 *'
+    
   workflow_dispatch: # Botão para você testar na hora que quiser
 
 jobs:
