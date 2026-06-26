@@ -3,7 +3,7 @@ import subprocess
 from datetime import datetime
 
 # Configurações do Servidor (Dados fornecidos)
-STREAM_FONTE = "https://playerservices.streamtheworld.com/api/livestream-redirect/RT_SP.mp3?dist=SiteTMC"
+STREAM_FONTE = "https://26513.live.streamtheworld.com/RADIOBANDEIRANTESAAC.aac"
 HOST = "192.99.41.102"
 PORTA = "6704"
 # No SHOUTcast v1, a senha de transmissão muitas vezes é apenas a senha ou usuario:senha
