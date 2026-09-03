@@ -3,7 +3,7 @@ import subprocess
 from datetime import datetime
 
 # Configurações do Servidor
-STREAM_FONTE = "https://playerservices.streamtheworld.com/api/livestream-redirect/RT_SP.mp3?dist=SiteTMC"
+STREAM_FONTE = "https://24373.live.streamtheworld.com/RT_SP.mp3?dist=SiteTMC"
 HOST = "192.99.41.102"
 PORTA = "6704"
 USUARIO = "henridj"
