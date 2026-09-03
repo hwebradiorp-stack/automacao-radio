@@ -2,23 +2,30 @@ name: Live Futebol H WebRadio
 
 on:
   schedule:
-    # Quarta-feira (21:20 BRT) -> Quinta-feira 00:20 UTC
+    # Quarta-feira (21:20 BRT) -> Quinta-feira (00:20 UTC)
     - cron: '20 0 * * 4'
 
-    # Domingo (15:45 BRT) -> Domingo 18:45 UTC
+    # Domingo (15:45 BRT) -> Domingo (18:45 UTC)
     - cron: '45 18 * * 0'
 
-  workflow_dispatch: # Botão para disparar manualmente na hora que quiser
+  workflow_dispatch: # Permite disparar manualmente pelo painel do GitHub
 
 jobs:
   retransmitir:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Código
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
 
       - name: Instalar FFmpeg
-        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
 
       - name: Iniciar Script Python
         run: python3 retransmitir_futebol.py
